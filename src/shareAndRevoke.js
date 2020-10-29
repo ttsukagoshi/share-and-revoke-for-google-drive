@@ -20,7 +20,7 @@ function shareFile() {
     let sheet = activeSpreadsheet.getSheetByName(SHEET_NAME);
     if (!sheet) {
       // Create a new sheet named SHEET_NAME if there were no existing sheet of the same name.
-      sheet = SpreadsheetApp.openById(SAMPLE_SPREADSHEET_ID)
+      SpreadsheetApp.openById(SAMPLE_SPREADSHEET_ID)
         .getSheetByName(SHEET_NAME)
         .copyTo(activeSpreadsheet)
         .setName(SHEET_NAME);
