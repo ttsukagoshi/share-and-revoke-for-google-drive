@@ -1,8 +1,35 @@
-const SHEET_NAME = 'Share_Revoke'; // Name of sheet
-const CELL_TARGET_FILE_ID = { 'row': 4, 'col': 3 }; // Cell position of target file ID
-const CELL_ACCESS_TYPE = { 'row': 7, 'col': 3 }; // Cell position of access type to set to & revoke from the file
-const RANGE_OFFSET_ACCOUNTS_LIST = { 'row': 10, 'col': 3 }; // Row & column offset for the range of target accounts list
-const SAMPLE_SPREADSHEET_ID = '13fpOAKDFdkNqwYugPP6KkOWU56CUIh_GnxdwsTQKMro' // Spreadsheet ID of the sample spreadsheet
+// MIT License
+// 
+// Copyright (c) 2020 Taro TSUKAGOSHI
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+// 
+// For latest information, see https://github.com/ttsukagoshi/share-and-revoke-for-google-drive
+
+const CONFIG = {
+  'sheetName': 'Share_Revoke', // Name of sheet
+  'cellTargetFileId': { 'row': 4, 'col': 3 }, // Cell position of target file ID
+  'cellAccessType': { 'row': 7, 'col': 3 }, // Cell position of access type to set to & revoke from the file
+  'cellAdditionalComment': { 'row': 10, 'col': 3 }, // Cell position of additional comments to add in the email notice to the shared accounts.
+  'rangeOffsetAccountsList': { 'row': 13, 'col': 3 }, // Row & column offset for the range of target accounts list
+  'sampleSpreadsheetId': '13fpOAKDFdkNqwYugPP6KkOWU56CUIh_GnxdwsTQKMro' // Spreadsheet ID of the sample spreadsheet
+};
 
 function onOpen() {
   SpreadsheetApp.getUi()
@@ -17,22 +44,22 @@ function shareFile() {
   var ui = SpreadsheetApp.getUi();
   var activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   try {
-    let sheet = activeSpreadsheet.getSheetByName(SHEET_NAME);
+    let sheet = activeSpreadsheet.getSheetByName(CONFIG.sheetName);
     if (!sheet) {
-      // Create a new sheet named SHEET_NAME if there were no existing sheet of the same name.
-      SpreadsheetApp.openById(SAMPLE_SPREADSHEET_ID)
-        .getSheetByName(SHEET_NAME)
+      // Create a new sheet named CONFIG.sheetName if there were no existing sheet of the same name.
+      SpreadsheetApp.openById(CONFIG.sampleSpreadsheetId)
+        .getSheetByName(CONFIG.sheetName)
         .copyTo(activeSpreadsheet)
-        .setName(SHEET_NAME);
-      throw new Error(`No existing sheet named "${SHEET_NAME}"; a new sheet was created.\nEnter the values and try again.`);
+        .setName(CONFIG.sheetName);
+      throw new Error(`No existing sheet named "${CONFIG.sheetName}"; a new sheet was created.\nEnter the values and try again.`);
     }
     // Read the target file ID from spreadsheet
-    let fileId = sheet.getRange(CELL_TARGET_FILE_ID.row, CELL_TARGET_FILE_ID.col).getValue();
+    let fileId = sheet.getRange(CONFIG.cellTargetFileId.row, CONFIG.cellTargetFileId.col).getValue();
     // Read the access type to grant to the accounts
-    let accessType = sheet.getRange(CELL_ACCESS_TYPE.row, CELL_ACCESS_TYPE.col).getValue();
+    let accessType = sheet.getRange(CONFIG.cellAccessType.row, CONFIG.cellAccessType.col).getValue();
     // Read the email addresses to share the file to
     let emailAddresses = sheet
-      .getRange(RANGE_OFFSET_ACCOUNTS_LIST.row, RANGE_OFFSET_ACCOUNTS_LIST.col, sheet.getLastRow() - RANGE_OFFSET_ACCOUNTS_LIST.row + 1, 1)
+      .getRange(CONFIG.rangeOffsetAccountsList.row, CONFIG.rangeOffsetAccountsList.col, sheet.getLastRow() - CONFIG.rangeOffsetAccountsList.row + 1, 1)
       .getValues()
       .flat();
     // Get the file
@@ -60,6 +87,7 @@ function shareFile() {
     ui.alert('Sharing complete.');
   } catch (error) {
     let message = errorMessage_(error);
+    console.log(message);
     ui.alert(message);
   }
 }
@@ -68,14 +96,14 @@ function revokeAccess() {
   var ui = SpreadsheetApp.getUi();
   var activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   try {
-    let sheet = activeSpreadsheet.getSheetByName(SHEET_NAME);
+    let sheet = activeSpreadsheet.getSheetByName(CONFIG.sheetName);
     // Read the target file ID from spreadsheet
-    let fileId = sheet.getRange(CELL_TARGET_FILE_ID.row, CELL_TARGET_FILE_ID.col).getValue();
+    let fileId = sheet.getRange(CONFIG.cellTargetFileId.row, CONFIG.cellTargetFileId.col).getValue();
     // Read the access type to grant to the accounts
-    let accessType = sheet.getRange(CELL_ACCESS_TYPE.row, CELL_ACCESS_TYPE.col).getValue();
+    let accessType = sheet.getRange(CONFIG.cellAccessType.row, CONFIG.cellAccessType.col).getValue();
     // Read the email addresses to share the file to
     let emailAddresses = sheet
-      .getRange(RANGE_OFFSET_ACCOUNTS_LIST.row, RANGE_OFFSET_ACCOUNTS_LIST.col, sheet.getLastRow() - RANGE_OFFSET_ACCOUNTS_LIST.row + 1, 1)
+      .getRange(CONFIG.rangeOffsetAccountsList.row, CONFIG.rangeOffsetAccountsList.col, sheet.getLastRow() - CONFIG.rangeOffsetAccountsList.row + 1, 1)
       .getValues()
       .flat();
     // Get the file
@@ -103,6 +131,7 @@ function revokeAccess() {
     ui.alert('Revoking access complete.');
   } catch (error) {
     let message = errorMessage_(error);
+    console.log(message);
     ui.alert(message);
   }
 }
@@ -113,6 +142,6 @@ function revokeAccess() {
  * @return {string} message Standarized error message
  */
 function errorMessage_(e) {
-  var message = `Error: line - ${e.lineNumber}\n${e.stack}`;
+  var message = e.stack;
   return message;
 }
