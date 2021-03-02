@@ -1,4 +1,7 @@
 # Manage Access to a Google Drive File
+
+> This script is no longer maintained.
+
 Using Google Sheets and Google Apps Script [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/ttsukagoshi/share-and-revoke-for-google-drive.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ttsukagoshi/share-and-revoke-for-google-drive/context:javascript)
 
 A simple Google Apps Script solution to share a file in Google Drive to multiple accounts at once, and to revoke that access.
